@@ -15,14 +15,36 @@ app.use( express.static( publicPath ) );
 io.on('connection', (socket) => {
 	console.log('New user connected');
 
+	//Send user welcome message
+	socket.emit('newMessage', {
+		from: 'Admin', 
+		text: 'Welcome to the chat app',
+		createdAt: new Date().getTime()
+	});
+
+	//Alert other users a new user joined
+	socket.broadcast.emit('newMessage', {
+		from: 'Admin', 
+		text: 'New User joined the chat',
+		createdAt: new Date().getTime()
+	});
 
 	socket.on('createMessage', (message)=>{
-		console.log('Create Message', message);
+	
+		//Send message to everyone
 		io.emit('newMessage', {
 			from: message.from,
 			text: message.text,
 			createdAt: new Date().getTime()
 		});
+
+		//Message to all users except sender by using socket/broadcast
+		// socket.broadcast.emit('newMessage', {
+		// 	from: message.from,
+		// 	text: message.text,
+		// 	createdAt: new Date().getTime()
+		// });
+	
 	});
 
 	socket.on('disconnect', ()=>{
