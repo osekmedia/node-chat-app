@@ -23,11 +23,13 @@ io.on('connection', (socket) => {
 	//Alert other users a new user joined
 	socket.broadcast.emit('newMessage', generateMessage('Admin', 'New User joined the chat'));
 
-	socket.on('createMessage', (message)=>{
-	
+	socket.on('createMessage', (message, callback)=>{
+		console.log('Create Message:', message );
 		//Send message to everyone
 		io.emit('newMessage', generateMessage(message.from, message.text));
 
+		//Send acknowledgment to caller 
+		callback('This is from the server');
 		//Message to all users except sender by using socket/broadcast
 		// socket.broadcast.emit('newMessage', {
 		// 	from: message.from,
