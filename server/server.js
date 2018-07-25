@@ -28,7 +28,7 @@ io.on('connection', (socket) => {
 		io.emit('newMessage', generateMessage(message.from, message.text));
 
 		//Send acknowledgment to caller 
-		callback('This is from the server');
+		callback();
 
 	});
 
