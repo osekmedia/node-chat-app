@@ -19,9 +19,8 @@ var users = new Users();
 app.use( express.static( publicPath ) ); 
 
 io.on('connection', (socket) => {
-	console.log('New user connected');
 
-	
+	console.log('New user connected');
 
 	socket.on( 'join', ( params, callback ) => {
 
@@ -49,8 +48,13 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('createMessage', (message, callback)=>{
-		//Send message to everyone
-		io.emit('newMessage', generateMessage(message.from, message.text));
+
+		var user = users.getUser(socket.id);
+
+		if( user && isRealString(message.text) ){
+			//Send message to everyone
+			io.to( user.room ).emit( 'newMessage', generateMessage( user.name, message.text ) );
+		}
 
 		//Send acknowledgment to caller 
 		callback();
@@ -58,16 +62,23 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('createLocationMessage', (coords) => {
-		//Send location to al users
-		io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
+
+		var user = users.getUser(socket.id);
+
+		if( user ){
+			//Send location to al users
+			io.to( user.room ).emit( 'newLocationMessage', generateLocationMessage( user.name, coords.latitude, coords.longitude ) );
+		}
+		
 	});
 
 	socket.on('disconnect', ()=>{
 
 		var user = users.removeUser(socket.id);
+
 		if(user){
-			io.to(user.room).emit('updateUserList', users.getUserList( user.room ) );
-			io.to(user.room).emit('newMessage', generateMessage('Admin',`${user.name} has left the room`) );
+			io.to( user.room ).emit('updateUserList', users.getUserList( user.room ) );
+			io.to( user.room ).emit('newMessage', generateMessage('Admin',`${user.name} has left the room`) );
 		}
 		console.log('User was disconnected!');
 	});
