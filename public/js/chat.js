@@ -21,7 +21,10 @@ function scrollToBottom(){
 
 socket.on('connect', function() {
 	console.log('connected to server');
+	//Get url params
 	var params = jQuery.deparam( window.location.search );
+
+	//Join chat room
 	socket.emit( 'join', params, function( error ){
 
 		if( error ){
@@ -34,10 +37,12 @@ socket.on('connect', function() {
 	} );
 });
 
+//Disconnect from chat room
 socket.on('disconnect', function() {
 	console.log('Disconnected from server');
 });
 
+//Manage user list display in sidebar
 socket.on('updateUserList', function(users){
 
 	var ol = jQuery('<ol></ol>');
@@ -52,6 +57,7 @@ socket.on('updateUserList', function(users){
 
 });
 
+//Display new message
 socket.on('newMessage', function(message) {
 
 	var formattedTime = moment(message.createdAt).format('h:mm a');
@@ -69,6 +75,7 @@ socket.on('newMessage', function(message) {
 
 });
 
+//Display new location message
 socket.on('newLocationMessage', function(message) {
 
 	var formattedTime = moment(message.createdAt).format('h:mm a');
@@ -86,6 +93,7 @@ socket.on('newLocationMessage', function(message) {
 
 });
 
+//Submit message to group
 jQuery('#message-form').on('submit', function(e){
 	e.preventDefault();
 	var messageBox = jQuery('input[name=message]', jQuery(this));
@@ -98,6 +106,7 @@ jQuery('#message-form').on('submit', function(e){
 
 var locationButton = jQuery('#send-location');
 
+//Handle send location button click
 locationButton.on( 'click', function(){
 
 	if(!navigator.geolocation){
